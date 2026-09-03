@@ -1,4 +1,5 @@
-﻿using CleanArchitectureDemo.Application.Services;
+﻿using CleanArchitectureDemo.Application.Queries;
+using CleanArchitectureDemo.Application.Services;
 using CleanArchitectureDemo.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,16 +10,22 @@ namespace CleanArchitectureDemo.API.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly EmployeeService _service;
+        private readonly BonusService _bonusService;
+        private readonly GetAllEmployeesQueryHandler _getAllEmployeesHandler;
 
-        public EmployeeController(EmployeeService service)
+        public EmployeeController(EmployeeService service, BonusService bonusService, GetAllEmployeesQueryHandler getAllEmployeesHandler)
         {
             _service = service;
+            _bonusService = bonusService;
+            _getAllEmployeesHandler = getAllEmployeesHandler;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var employees = await _service.GetAllAsync();
+            var query = new GetAllEmployeesQuery();
+
+            var employees = await _getAllEmployeesHandler.Handle(query);
 
             return Ok(employees);
         }
@@ -61,6 +68,19 @@ namespace CleanArchitectureDemo.API.Controllers
             await _service.DeleteAsync(id);
 
             return Ok();
+        }
+
+        [HttpGet("bonus")]
+        public IActionResult CalculateBonus(string type, decimal salary)
+        {
+            var bonus = _bonusService.CalculateBonus(type, salary);
+
+            return Ok(new
+            {
+                EmployeeType = type,
+                Salary = salary,
+                Bonus = bonus
+            });
         }
     }
 }
