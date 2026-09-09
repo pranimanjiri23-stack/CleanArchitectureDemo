@@ -13,5 +13,7 @@ namespace CleanArchitectureDemo.Infrastructure.Data
         }
 
         public DbSet<Employee> Employees { get; set; }
+
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

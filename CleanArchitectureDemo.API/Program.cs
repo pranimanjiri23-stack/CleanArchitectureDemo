@@ -15,6 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString(
@@ -30,6 +32,8 @@ builder.Services.AddScoped<IBonusCalculator, ContractBonusCalculator>();
 builder.Services.AddScoped<IBonusCalculator, InternBonusCalculator>();
 builder.Services.AddScoped<IBonusCalculator, FreelancerBonusCalculator>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 builder.Services.AddScoped<GetAllEmployeesQueryHandler>();
 builder.Services.AddScoped<GetEmployeeByIdQueryHandler>();
@@ -121,6 +125,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHealthChecks("/health");
 
 app.MapControllers();
 
